@@ -1,0 +1,48 @@
+#GCP config
+gcp:
+  project_id: dancing-llamas-2026
+  location: us-central1
+  model: gemini-2.5-flash-lite
+
+# parsing:
+#   primary_parser: grobid           # TEI XML; used for biomedical/social sciences
+#   math_parser: nougat              # LaTeX-preserving; used for physics/chemistry (GPU required)
+#   table_detector: tatr
+#   table_extractor: camelot
+#   figure_model: claude             # Vision model for figure descriptions
+
+# chunking:
+#   chunk_size: 512                  # tokens
+#   chunk_overlap: 75                # tokens
+#   parent_chunk_size: 700           # tokens returned to LLM (small-to-big retrieval)
+#   child_chunk_size: 256            # tokens indexed for retrieval precision
+#   min_chunk_sentences: 2
+
+# embeddings:
+#   model: text-embedding-3-large    # alternative: e5-mistral-7b
+
+# vector_db:
+#   provider: weaviate               # alternatives: qdrant, pinecone
+#   collection: scientific_articles
+
+# retrieval:
+#   strategy: hybrid                 # BM25 + dense embeddings
+#   top_k: 5
+
+# domains:
+#   biomedical:
+#     parser: grobid
+#   physics:
+#     parser: nougat
+#   chemistry:
+#     parser: nougat
+#   social_sciences:
+#     parser: grobid
+
+# elsevier:
+#   use_structured_xml: true         # bypass PDF parsing for ScienceDirect articles
+
+# evaluation:
+#   ragas: true
+#   recall_at_k: 5
+#   golden_dataset_size: 500
