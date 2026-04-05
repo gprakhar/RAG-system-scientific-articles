@@ -1,20 +1,12 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-## Project Status
-
-This repository is in the **planning phase** — no implementation code exists yet. The codebase currently contains:
-
-- `claude_code_plan.md` — The primary architecture and strategy document. The authoritative source for all design decisions, with benchmarks and rationale.
-- `literature-review.md` — Annotated bibliography of all research sources used to inform the architecture.
-- `docs/example_input_docs/` — Sample peer-reviewed PDFs for testing the pipeline once built.
-
-## What This System Does
+## Project Overview
 
 A RAG (Retrieval-Augmented Generation) pipeline for peer-reviewed scientific articles, targeting Elsevier/ScienceDirect scale (millions of documents, diverse scientific domains).
 
-## Planned Architecture
+**Current state:** Early implementation. Active modules: `src/pdf_reader.py`, `src/main.py`. Config: `config.yaml`. Tests: `tests/`. Reference docs: `claude_code_plan.md` (architecture), `literature-review.md` (research sources).
+
+## Architecture
 
 ### Parsing Layer (Phase 1)
 - **Primary**: GROBID (TEI XML output, section boundaries, bibliography) — use for biomedical/social sciences
@@ -56,3 +48,58 @@ Every chunk must carry: `chunk_id`, `document_doi`, `title`, `journal`, `publica
 - Chunk QA: assert no chunk < 2 sentences, no mid-equation splits, no pure citation-list chunks
 - Retrieval eval: 500-question golden dataset, measure Recall@5 and MRR
 - End-to-end eval: RAGAS framework (faithfulness, answer relevancy, context precision, context recall)
+
+## Development Guidelines
+
+### Git & Commits
+
+**Format:** `[Action] [Component]: Brief description`
+- `Add pdf_reader: implement PDF text extraction`
+- `Fix config: correct output path resolution`
+
+**Never:**
+- Include "Co-Authored-By: Claude" or "Generated with Claude Code" in commit messages
+- Combine unrelated changes in one commit
+- Commit broken or non-functional code
+
+### Code Style
+
+- **Named arguments**: Always use keyword arguments in function calls — `func(param=value)`, never positional
+- **Type hints**: All function signatures must have type annotations
+- **Package manager**: Use `uv` — never `pip` or `poetry`
+- **Imports**: Do not prefix module imports with `src.` — the build system adds `src/` to the path, so modules are imported directly (e.g. `from pdf_reader import read_pdf`, not `from src.pdf_reader import read_pdf`)
+
+### Documentation
+
+Google-style docstrings on all modules, classes, and functions. Minimum required fields: description, `Args:`, `Returns:`, `Raises:` (if applicable).
+
+```python
+def read_pdf(file_path: str, output_path: str) -> None:
+    """Read all PDFs in a directory and write extracted text to output.
+
+    Args:
+        file_path: Path to directory containing input PDF files.
+        output_path: Path to directory where output text files are written.
+    """
+```
+
+### Logging & Error Handling
+
+- Use Python's `logging` module — never `print()` for runtime output
+- Log at every significant operation, state change, and error — with enough context to diagnose without a debugger
+- Catch specific exceptions only — never bare `except:` or silent `except Exception: pass`
+- Always log the error before re-raising or returning a fallback
+
+### Testing
+
+- Write tests for every feature — both success and failure paths
+- Do not mock components where the real implementation must be exercised (e.g. actual file I/O, real API responses) — test against real behaviour at system boundaries
+- Each source module in `src/` gets a corresponding test file in `tests/` — e.g. `src/pdf_reader.py` → `tests/test_pdf_reader.py`
+- Standard structure:
+  ```
+  tests/
+    __init__.py
+    test_pdf_reader.py
+    test_<module>.py
+    ...
+  ```

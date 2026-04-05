@@ -4,6 +4,10 @@ gcp:
   location: us-central1
   model: gemini-2.5-flash-lite
 
+pdf_files:
+  file_path: "docs/example_input_docs/"
+  output_path: "docs/output/"
+
 # parsing:
 #   primary_parser: grobid           # TEI XML; used for biomedical/social sciences
 #   math_parser: nougat              # LaTeX-preserving; used for physics/chemistry (GPU required)

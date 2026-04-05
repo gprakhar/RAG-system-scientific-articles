@@ -215,3 +215,4 @@ __marimo__/
 *.pyd
 __pycache__/
 .venv/
+docs/output/
