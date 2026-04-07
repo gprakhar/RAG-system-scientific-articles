@@ -65,6 +65,25 @@ Detailed record of work done per commit. Each entry uses the commit timestamp as
 
 ---
 
+## 2026-04-08 01:07:42 +0530 — `093322f`
+**Add docs: add PDF parsing library observations and benchmark tracking document**
+
+### What was built
+
+**`docs/pdf_parsing_observations.md`** — Living document for tracking hands-on PDF parsing library evaluations:
+- Structured sections for PyMuPDF, Docling, GROBID, and Nougat
+- Observations already populated for the two integrated backends (pymupdf, docling) based on testing against `docs/example_input_docs/`
+- PyMuPDF observations: plain text extraction preserves reading order but loses all semantic structure (headers, footers, tables, figures), hyperlinks, and visual element placeholders
+- Docling observations: preserves headings/sections and mostly maintains reading order; inconsistent visual element placeholder handling across test docs; hyperlinks lost
+- Placeholder sections for GROBID and Nougat (planned integrations)
+- Comparative analysis tables (Speed, Accuracy, Edge Cases) with TBD slots to be filled as testing progresses
+- Raw notes section for unedited observations during testing
+
+### Verified
+- File tracked and committed cleanly
+
+---
+
 ## 2026-04-08 00:56:37 +0530 — `ce2f9fa`
 **Add pymupdf4llm: add LLM-optimised markdown parser and graceful exit handling**
 
