@@ -62,3 +62,39 @@ Detailed record of work done per commit. Each entry uses the commit timestamp as
 - `uv run rag --library pymupdf` — processed 6 PDFs successfully
 - `uv run rag --library docling` — processed 6 PDFs successfully (~68s first run for model download, ~8–12s per doc after)
 - `uv run pytest tests/ -v` — 13/13 passed
+
+---
+
+## 2026-04-08 00:56:37 +0530 — `ce2f9fa`
+**Add pymupdf4llm: add LLM-optimised markdown parser and graceful exit handling**
+
+### What was built
+
+**`src/pdf_reader.py` — new `_read_with_pymupdf4llm` backend:**
+- Uses `pymupdf4llm.to_markdown()` to convert each PDF to LLM-optimised markdown — preserves document structure, tables, and formatting better than plain text extraction
+- Output written via `Path.write_bytes(md_text.encode())` — consistent with the sample code pattern
+- Registered as `"pymupdf4llm"` in `_LIBRARY_HANDLERS` — no changes needed to `read_pdf()` or `main()`
+- Lazy import inside the function, same pattern as other backends
+
+**`src/pdf_reader.py` — library-prefixed output filenames:**
+- All three backends now prefix output filenames with the library name:
+  - `pymupdf` → `pymupdf_doc1_output.txt`
+  - `pymupdf4llm` → `pymupdf4llm_doc1_output.md`
+  - `docling` → `docling_doc1_output.md`
+- Prevents output files from different backends overwriting each other in the same `docs/output/` directory
+
+**`src/main.py` — graceful exit on errors:**
+- Added `import sys`
+- `_load_config()` call wrapped: catches `FileNotFoundError` and `yaml.YAMLError`, logs clean error, calls `sys.exit(1)` — no traceback on missing/malformed config
+- `read_pdf()` call wrapped: catches `ValueError` (bad `--library` value), `FileNotFoundError`, and `OSError`, logs clean error, calls `sys.exit(1)` — previously a typo like `--library dockling` produced a raw Python traceback
+
+**`pyproject.toml` + `uv.lock`:**
+- Added `pymupdf4llm` dependency (pulled in `onnxruntime`, `pymupdf-layout`, `flatbuffers`, `protobuf`)
+
+**`tests/test_pdf_reader.py`:**
+- Updated glob patterns from `*_output.txt` to `pymupdf_*_output.txt` to match new prefixed filenames
+
+### Verified
+- `uv run rag --library pymupdf4llm` — processed 6 PDFs successfully, output `.md` files written to `docs/output/`
+- `uv run rag --library dockling` — exits cleanly with `ERROR: Invalid argument: Unsupported library: 'dockling'...`, exit code 1, no traceback
+- `uv run pytest tests/ -v` — 13/13 passed
