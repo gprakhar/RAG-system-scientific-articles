@@ -62,6 +62,8 @@ Every chunk must carry: `chunk_id`, `document_doi`, `title`, `journal`, `publica
 - Combine unrelated changes in one commit
 - Commit broken or non-functional code
 
+**After every commit:** append a detailed entry to `docs/progress.md` using the commit timestamp (`YYYY-MM-DD HH:MM:SS +TZ`) as the heading, the commit hash and message as the subheading, and a full description of what was built, changed, and verified.
+
 ### Code Style
 
 - **Named arguments**: Always use keyword arguments in function calls — `func(param=value)`, never positional
