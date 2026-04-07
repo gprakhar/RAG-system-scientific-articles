@@ -11,6 +11,7 @@ Example:
 """
 import argparse
 import logging
+import sys
 import yaml
 
 from pdf_reader import read_pdf
@@ -68,14 +69,27 @@ def main() -> None:
     configured input directory and writes extracted text to the output directory.
     """
     args = _parse_args()
-    config = _load_config()
+
+    try:
+        config = _load_config()
+    except (FileNotFoundError, yaml.YAMLError) as e:
+        logger.error("Startup failed: %s", e)
+        sys.exit(1)
 
     logger.info("Starting PDF ingestion pipeline with library=%s", args.library)
-    read_pdf(
-        file_path=config["pdf_files"]["file_path"],
-        output_path=config["pdf_files"]["output_path"],
-        library=args.library,
-    )
+    try:
+        read_pdf(
+            file_path=config["pdf_files"]["file_path"],
+            output_path=config["pdf_files"]["output_path"],
+            library=args.library,
+        )
+    except ValueError as e:
+        logger.error("Invalid argument: %s", e)
+        sys.exit(1)
+    except (FileNotFoundError, OSError) as e:
+        logger.error("Pipeline failed: %s", e)
+        sys.exit(1)
+
     logger.info("PDF ingestion pipeline complete")
 
 

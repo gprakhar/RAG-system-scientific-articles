@@ -37,7 +37,7 @@ class TestReadPdf:
             library="pymupdf",
         )
         input_pdfs = list(Path(SAMPLE_PDF_DIR).glob("*.pdf"))
-        output_txts = list(tmp_path.glob("*_output.txt"))
+        output_txts = list(tmp_path.glob("pymupdf_*_output.txt"))
         assert len(output_txts) == len(input_pdfs)
 
     def test_pymupdf_output_files_are_non_empty(self, tmp_path: Path) -> None:
@@ -47,7 +47,7 @@ class TestReadPdf:
             output_path=str(tmp_path),
             library="pymupdf",
         )
-        for txt_file in tmp_path.glob("*_output.txt"):
+        for txt_file in tmp_path.glob("pymupdf_*_output.txt"):
             assert txt_file.stat().st_size > 0, f"{txt_file.name} is empty"
 
     def test_empty_input_directory_produces_no_output(self, tmp_path: Path) -> None:

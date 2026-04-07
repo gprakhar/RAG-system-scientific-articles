@@ -6,6 +6,7 @@ registering it in `_LIBRARY_HANDLERS`.
 
 Modules:
     _read_with_pymupdf: PyMuPDF-based text extraction, output as .txt.
+    _read_with_pymupdf4llm: PyMuPDF4LLM-based markdown extraction, output as .md.
     _read_with_docling: Docling-based extraction, output as .md.
 """
 import logging
@@ -31,7 +32,7 @@ def _read_with_pymupdf(pdf_files: list[Path], out_dir: Path) -> None:
         logger.info("Processing %s with pymupdf", pdf_file.name)
         try:
             doc = pymupdf.open(pdf_file)
-            with open(out_dir / f"{pdf_file.stem}_output.txt", "wb") as out:
+            with open(out_dir / f"pymupdf_{pdf_file.stem}_output.txt", "wb") as out:
                 for page in doc:
                     text = page.get_text().encode("utf8")
                     out.write(text)
@@ -63,8 +64,39 @@ def _read_with_docling(pdf_files: list[Path], out_dir: Path) -> None:
         logger.info("Processing %s with docling", pdf_file.name)
         try:
             result = converter.convert(str(pdf_file))
-            with open(out_dir / f"{pdf_file.stem}_output.md", "w", encoding="utf-8") as out:
+            with open(out_dir / f"docling_{pdf_file.stem}_output.md", "w", encoding="utf-8") as out:
                 out.write(result.document.export_to_markdown())
+            logger.info("Written output for %s", pdf_file.name)
+        except FileNotFoundError as e:
+            logger.error("PDF file not found %s: %s", pdf_file.name, e)
+            raise
+        except OSError as e:
+            logger.error("I/O error processing %s: %s", pdf_file.name, e)
+            raise
+
+
+def _read_with_pymupdf4llm(pdf_files: list[Path], out_dir: Path) -> None:
+    """Extract text from PDFs using PyMuPDF4LLM and write as .md files.
+
+    Converts each PDF to LLM-optimised markdown preserving structure,
+    tables, and formatting using the pymupdf4llm library.
+
+    Args:
+        pdf_files: List of PDF file paths to process.
+        out_dir: Directory where output .md files are written.
+
+    Raises:
+        FileNotFoundError: If a PDF file does not exist.
+        OSError: If an output file cannot be written.
+    """
+    import pymupdf4llm
+
+    for pdf_file in pdf_files:
+        logger.info("Processing %s with pymupdf4llm", pdf_file.name)
+        try:
+            md_text = pymupdf4llm.to_markdown(str(pdf_file))
+            out_path = out_dir / f"pymupdf4llm_{pdf_file.stem}_output.md"
+            out_path.write_bytes(md_text.encode())
             logger.info("Written output for %s", pdf_file.name)
         except FileNotFoundError as e:
             logger.error("PDF file not found %s: %s", pdf_file.name, e)
@@ -76,6 +108,7 @@ def _read_with_docling(pdf_files: list[Path], out_dir: Path) -> None:
 
 _LIBRARY_HANDLERS = {
     "pymupdf": _read_with_pymupdf,
+    "pymupdf4llm": _read_with_pymupdf4llm,
     "docling": _read_with_docling,
 }
 
@@ -86,7 +119,7 @@ def read_pdf(file_path: str, output_path: str, library: str = "pymupdf") -> None
     Args:
         file_path: Path to directory containing input PDF files.
         output_path: Path to directory where output files are written.
-        library: Parsing library to use. Supported: 'pymupdf', 'docling'.
+        library: Parsing library to use. Supported: 'pymupdf', 'pymupdf4llm', 'docling'.
 
     Raises:
         ValueError: If an unsupported library is specified.
