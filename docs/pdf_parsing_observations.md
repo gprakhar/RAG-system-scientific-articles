@@ -135,6 +135,52 @@ markdown = result.document.export_to_markdown()
 
 ---
 
+### PyMuPDF4LLM (pymupdf4llm)
+
+**Version**: `1.27.2.2`
+**Implementation Status**: ✅ Integrated
+**Output Format**: Markdown (`.md`)
+
+#### Implementation Code
+
+```python
+import pymupdf4llm
+md_text = pymupdf4llm.to_markdown(str(pdf_file))
+```
+
+**Method**: `to_markdown()`
+
+#### Observations
+
+##### `to_markdown()` Method Behavior
+
+**Document Structure Recognition**:
+- ✅ Reading order is preserved
+- ⚠️ Footer are not recognised as such and included into text body (doc 2, 6) or they are recognised (doc 1)
+- ❌ Header are not recognised and included in text body
+- ✅ Headings, subheading, section limits preserved.
+
+**Visual Elements**:
+- ⚠️ Visual elements placeholder maintained at times (doc 1, 5), mostly not (doc 2, 6)
+- ❌ Embedded hyperlinks not conserved
+- ❌ Special chars (Eg. mu, micro) are not recognised.
+
+#### Pros & Cons
+
+**Pros**:
+- ✅ Reading order preserved
+- ✅ Headings and section structure maintained
+- ✅ LLM-optimized markdown output
+
+**Cons**:
+- ⚠️ Inconsistent header/footer detection
+- ⚠️ Inconsistent visual element placeholders
+- ❌ Headers not recognized, included in body
+- ❌ Hyperlinks lost
+- ❌ Special character encoding issues (Greek letters, symbols)
+
+---
+
 ### GROBID
 
 **Version**: [To be filled]
